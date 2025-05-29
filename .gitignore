@@ -1,0 +1,12 @@
+# Arquivos compilados Java
+*.class
+
+# Diretório de build do Maven
+/target/
+
+# Arquivos de IDE
+.vscode/
+.idea/
+
+# Arquivos do sistema operacional
+.DS_Store
