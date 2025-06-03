@@ -1,14 +1,3 @@
-// src/main/java/com/br/ecommerce/domain/OrderStatus.java
-// package com.br.ecommerce.domain;
-
-// public enum OrderStatus {
-//     NEW,
-//     PROCESSING,
-//     SHIPPED,
-//     DELIVERED,
-//     CANCELLED
-// }
-// src/main/java/com/br/ecommerce/domain/OrderStatus.java
 package com.br.ecommerce.domain;
 
 public enum OrderStatus {
@@ -33,9 +22,13 @@ public enum OrderStatus {
     DELIVERED {
         @Override
         public OrderStatus next() {
-            return null;
+            return this; // Não avança mais
         }
     };
 
     public abstract OrderStatus next();
+
+    public boolean canAdvance() {
+        return next() != this;
+    }
 }

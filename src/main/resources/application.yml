@@ -1,7 +1,6 @@
 # src/main/resources/application.yml
 # See http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
 spring:
-  thymeleaf.cache: false
   main.show-banner: false
   datasource:
     url: jdbc:h2:mem:ecommerce;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -23,7 +22,8 @@ spring:
         format_sql: true
         use_sql_comments: true
     hibernate:
-      ddl-auto: update
+      # ddl-auto: update
+      ddl-auto: create-drop
 
 fakestore:
   api:
@@ -37,3 +37,9 @@ logging:
 customer:
   observer:
     name: "João Silva"  # Nome do cliente que será observador
+
+thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false # Desativa cache em desenvolvimento
+    mode: HTML

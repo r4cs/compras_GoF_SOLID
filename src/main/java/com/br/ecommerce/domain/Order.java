@@ -13,6 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "customer_order")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,4 +64,15 @@ public class Order {
             observer.update("Status do pedido atualizado: " + state.getClass().getSimpleName());
         }
     }
+
+    public void addItem(OrderItem item) {
+    this.items.add(item);
+    item.setOrder(this); // Mantém a consistência bidirecional
+    }
+
+    public Double getTotalPrice() {
+    return items.stream()
+        .mapToDouble(item -> item.getUnitPrice() * item.getQuantity())
+        .sum();
+}
 }

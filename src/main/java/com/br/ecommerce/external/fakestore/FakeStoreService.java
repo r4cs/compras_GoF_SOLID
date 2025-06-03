@@ -7,6 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.br.ecommerce.domain.product.Product;
 import com.br.ecommerce.dto.FakeStoreProductDTO;
@@ -40,6 +41,36 @@ public class FakeStoreService {
             .map(adapter::adapt)
             .toList();
     }
+
+ public List<Product> fetchPageableProducts(int limit, int offset) {
+        // A FakeStoreAPI geralmente não suporta 'offset' diretamente, apenas 'limit'
+        // Sendo assim, iremos buscar todos e depois aplicar a lógica de offset/limit em memória
+        // ou, se a API suportar, construir a URL com os parâmetros de paginação.
+        // Para a FakeStore, usaremos 'limit' para simular a quantidade e 'offset' para "pular"
+        // os primeiros resultados, se a API suportar. Se não, precisaremos buscar tudo e paginar em memória.
+        
+        String url = UriComponentsBuilder.fromUriString(apiUrl + "/products")
+            .queryParam("limit", limit)
+            // .queryParam("offset", offset) // FakeStoreAPI não tem suporte nativo a offset.
+            .toUriString();
+
+        ResponseEntity<List<FakeStoreProductDTO>> response = restTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<List<FakeStoreProductDTO>>() {}
+        );
+        
+        List<Product> allProducts = response.getBody().stream()
+            .map(adapter::adapt)
+            .toList();
+
+        // Como a FakeStoreAPI não tem 'offset' nativo, aplicamos a lógica de offset em memória
+        if (offset < allProducts.size()) {
+            return allProducts.subList(offset, Math.min(offset + limit, allProducts.size()));
+        }
+        return List.of(); // Retorna uma lista vazia se o offset for maior que o número de produtos
+    }
     
     public Optional<Product> fetchProductById(Long id) {
         try {
@@ -51,5 +82,31 @@ public class FakeStoreService {
         } catch (Exception e) {
             return Optional.empty();
         }
+    }
+
+    public List<String> fetchAllCategories() {
+        ResponseEntity<List<String>> categoriesResponse = restTemplate.exchange(
+            apiUrl + "/products/categories",
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<List<String>>() {} 
+            );
+        return categoriesResponse.getBody().stream().toList();
+    }
+
+        public List<Product> fetchProductsByCategory(String category) {
+        String url = UriComponentsBuilder.fromUriString(apiUrl + "/products/category/" + category)
+            .toUriString();
+
+        ResponseEntity<List<FakeStoreProductDTO>> response = restTemplate.exchange(
+            url,
+            HttpMethod.GET,
+            null,
+            new ParameterizedTypeReference<List<FakeStoreProductDTO>>() {}
+        );
+
+        return response.getBody().stream()
+            .map(adapter::adapt)
+            .toList();
     }
 }
